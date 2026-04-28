@@ -14,6 +14,7 @@ import devToolsEnhancer from "redux-devtools-expo-dev-plugin";
 
 import { productsApi } from "@/features/products/api/productsApi";
 import cartReducer from "@/features/cart/store/cartSlice";
+import productsReducer from "@/features/products/store/productsSlice";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 
 // Persist settings
@@ -22,11 +23,13 @@ const persistConfig = {
   version: 1,
   storage: AsyncStorage,
   // Only persist cart
-  whitelist: ["cart"],
+  whitelist: ["cart", "products"],
 };
 
 const rootReducer = combineReducers({
   cart: cartReducer,
+  products: productsReducer,
+
   [productsApi.reducerPath]: productsApi.reducer,
 });
 
@@ -41,6 +44,9 @@ export const store = configureStore({
       serializableCheck: {
         // Ignore redux-persist actions
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+      },
+      immutableCheck: {
+        warnAfter: 100,
       },
     }).concat(productsApi.middleware),
   devTools: false, // Disable built-in to avoid conflicts
