@@ -44,7 +44,10 @@ const ProductsScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   const renderProduct = ({ item }: { item: Product }) => (
-    <View style={styles.card}>
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() => navigation.navigate("ProductDetails", { product: item })}
+    >
       <View style={styles.cardContent}>
         <View>
           <Text style={styles.title}>{item.title}</Text>
@@ -58,7 +61,7 @@ const ProductsScreen: React.FC<Props> = ({ navigation }) => {
           <Text style={styles.buttonText}>+ Cart</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   if (isLoading && page === 1) {
