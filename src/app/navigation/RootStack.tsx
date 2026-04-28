@@ -1,10 +1,10 @@
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { createStackNavigator } from "@react-navigation/stack";
 import { RootStackParamList } from "./types";
 
 import ProductsScreen from "@/features/products/screens/ProductsScreen";
 import CartScreen from "@/features/cart/screens/CartScreen";
 
-const Stack = createNativeStackNavigator<RootStackParamList>();
+const Stack = createStackNavigator<RootStackParamList>();
 
 export default function RootStack() {
   return (
