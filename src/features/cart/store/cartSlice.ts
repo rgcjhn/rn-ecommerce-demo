@@ -8,12 +8,14 @@ interface CartState {
   items: CartItem[];
   totalQuantity: number;
   totalPrice: number;
+  totalDiscountedPrice: number;
 }
 
 const initialState: CartState = {
   items: [],
   totalQuantity: 0,
   totalPrice: 0,
+  totalDiscountedPrice: 0,
 };
 
 export const cartSlice = createSlice({
@@ -34,16 +36,20 @@ export const cartSlice = createSlice({
         });
       }
 
-      const { totalQuantity, totalPrice } = calculateTotals(state.items);
+      const { totalQuantity, totalPrice, totalDiscountedPrice } =
+        calculateTotals(state.items);
       state.totalQuantity = totalQuantity;
       state.totalPrice = totalPrice;
+      state.totalDiscountedPrice = totalDiscountedPrice;
     },
 
     removeFromCart: (state, action: PayloadAction<number>) => {
       state.items = state.items.filter((item) => item.id !== action.payload);
-      const { totalQuantity, totalPrice } = calculateTotals(state.items);
+      const { totalQuantity, totalPrice, totalDiscountedPrice } =
+        calculateTotals(state.items);
       state.totalQuantity = totalQuantity;
       state.totalPrice = totalPrice;
+      state.totalDiscountedPrice = totalDiscountedPrice;
     },
 
     updateQuantity: (
@@ -61,15 +67,18 @@ export const cartSlice = createSlice({
         }
       }
 
-      const { totalQuantity, totalPrice } = calculateTotals(state.items);
+      const { totalQuantity, totalPrice, totalDiscountedPrice } =
+        calculateTotals(state.items);
       state.totalQuantity = totalQuantity;
       state.totalPrice = totalPrice;
+      state.totalDiscountedPrice = totalDiscountedPrice;
     },
 
     clearCart: (state) => {
       state.items = [];
       state.totalQuantity = 0;
       state.totalPrice = 0;
+      state.totalDiscountedPrice = 0;
     },
   },
 });

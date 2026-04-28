@@ -16,14 +16,14 @@ import { removeFromCart, updateQuantity, clearCart } from "../store/cartSlice";
 import { colors } from "@/shared/styles/colors";
 
 import { CartItem } from "../models/cart.types";
+import { getDisplayPrice, truncateToDecimals } from "../utils/cartUtils";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Cart">;
 
 const CartScreen: React.FC<Props> = ({ navigation }) => {
   const dispatch = useAppDispatch();
-  const { items, totalPrice, totalQuantity } = useAppSelector(
-    (state) => state.cart,
-  );
+  const { items, totalPrice, totalDiscountedPrice, totalQuantity } =
+    useAppSelector((state) => state.cart);
 
   const handleCheckout = () => {
     Alert.alert(
@@ -36,64 +36,85 @@ const CartScreen: React.FC<Props> = ({ navigation }) => {
     );
   };
 
-  const renderCartItem = ({ item }: { item: CartItem }) => (
-    <TouchableOpacity
-      style={styles.cartItem}
-      onPress={() => navigation.navigate("ProductDetails", { product: item })}
-    >
-      <Image
-        source={{ uri: item.thumbnail }}
-        style={styles.thumbnail}
-        resizeMode="cover"
-      />
-      <View style={styles.itemInfo}>
-        <Text style={styles.itemTitle} numberOfLines={2}>
-          {item.title}
-        </Text>
-        <Text style={styles.itemPrice}>${item.price.toFixed(2)}</Text>
-      </View>
+  const renderCartItem = ({ item }: { item: CartItem }) => {
+    const discountedPrice = getDisplayPrice(item);
+    const hasDiscount = item.discountPercentage > 0;
 
-      <View style={styles.itemActions}>
-        {/* Quantity controls */}
-        <View style={styles.quantityContainer}>
-          <TouchableOpacity
-            onPress={() =>
-              dispatch(
-                updateQuantity({ id: item.id, quantity: item.quantity - 1 }),
-              )
-            }
-            style={styles.quantityButton}
-          >
-            <Text style={styles.quantityButtonText}>-</Text>
-          </TouchableOpacity>
-
-          <Text style={styles.quantity}>{item.quantity}</Text>
-
-          <TouchableOpacity
-            onPress={() =>
-              dispatch(
-                updateQuantity({ id: item.id, quantity: item.quantity + 1 }),
-              )
-            }
-            style={styles.quantityButton}
-          >
-            <Text style={styles.quantityButtonText}>+</Text>
-          </TouchableOpacity>
+    return (
+      <TouchableOpacity
+        style={styles.cartItem}
+        onPress={() => navigation.navigate("ProductDetails", { product: item })}
+      >
+        <Image
+          source={{ uri: item.thumbnail }}
+          style={styles.thumbnail}
+          resizeMode="cover"
+        />
+        <View style={styles.itemInfo}>
+          <Text style={styles.itemTitle} numberOfLines={2}>
+            {item.title}
+          </Text>
+          <View style={styles.priceContainer}>
+            {hasDiscount ? (
+              <>
+                <Text style={styles.originalPrice}>
+                  ${item.price.toFixed(2)}
+                </Text>
+                <Text style={styles.itemPrice}>${discountedPrice}</Text>
+                <View style={styles.discountBadge}>
+                  <Text style={styles.discountText}>
+                    -{item.discountPercentage}%
+                  </Text>
+                </View>
+              </>
+            ) : (
+              <Text style={styles.itemPrice}>${discountedPrice}</Text>
+            )}
+          </View>
         </View>
 
-        {/* Remove button */}
-        <TouchableOpacity
-          onPress={(e) => {
-            e.stopPropagation();
-            dispatch(removeFromCart(item.id));
-          }}
-          style={styles.removeButton}
-        >
-          <Ionicons name="trash-outline" size={20} color={colors.error} />
-        </TouchableOpacity>
-      </View>
-    </TouchableOpacity>
-  );
+        <View style={styles.itemActions}>
+          {/* Quantity controls */}
+          <View style={styles.quantityContainer}>
+            <TouchableOpacity
+              onPress={() =>
+                dispatch(
+                  updateQuantity({ id: item.id, quantity: item.quantity - 1 }),
+                )
+              }
+              style={styles.quantityButton}
+            >
+              <Text style={styles.quantityButtonText}>-</Text>
+            </TouchableOpacity>
+
+            <Text style={styles.quantity}>{item.quantity}</Text>
+
+            <TouchableOpacity
+              onPress={() =>
+                dispatch(
+                  updateQuantity({ id: item.id, quantity: item.quantity + 1 }),
+                )
+              }
+              style={styles.quantityButton}
+            >
+              <Text style={styles.quantityButtonText}>+</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Remove button */}
+          <TouchableOpacity
+            onPress={(e) => {
+              e.stopPropagation();
+              dispatch(removeFromCart(item.id));
+            }}
+            style={styles.removeButton}
+          >
+            <Ionicons name="trash-outline" size={20} color={colors.error} />
+          </TouchableOpacity>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   if (items.length === 0) {
     return (
@@ -128,7 +149,9 @@ const CartScreen: React.FC<Props> = ({ navigation }) => {
         </View>
         <View style={styles.totalRow}>
           <Text style={styles.totalLabel}>Total Price:</Text>
-          <Text style={styles.totalPrice}>${totalPrice.toFixed(2)}</Text>
+          <Text style={styles.totalPrice}>
+            ${truncateToDecimals(totalDiscountedPrice)}
+          </Text>
         </View>
 
         <TouchableOpacity
@@ -187,10 +210,33 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     marginBottom: 4,
   },
+  priceContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    flexWrap: "wrap",
+  },
   itemPrice: {
     fontSize: 14,
     fontWeight: "600",
     color: colors.success,
+  },
+  originalPrice: {
+    fontSize: 12,
+    fontWeight: "500",
+    color: colors.textSecondary,
+    textDecorationLine: "line-through",
+  },
+  discountBadge: {
+    backgroundColor: colors.error,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  discountText: {
+    color: colors.textLight,
+    fontSize: 10,
+    fontWeight: "600",
   },
   itemActions: {
     flexDirection: "row",
