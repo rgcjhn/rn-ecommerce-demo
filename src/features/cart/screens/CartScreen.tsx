@@ -28,7 +28,7 @@ const CartScreen: React.FC<Props> = ({ navigation }) => {
   const handleCheckout = () => {
     Alert.alert(
       "Checkout",
-      `Total: $${totalPrice.toFixed(2)}\nProceed to checkout?`,
+      `Total: $${truncateToDecimals(totalDiscountedPrice)}\nProceed to checkout?`,
       [
         { text: "Cancel", style: "cancel" },
         { text: "OK", onPress: () => dispatch(clearCart()) },
@@ -147,6 +147,17 @@ const CartScreen: React.FC<Props> = ({ navigation }) => {
           <Text style={styles.totalLabel}>Total Items:</Text>
           <Text style={styles.totalValue}>{totalQuantity}</Text>
         </View>
+
+        {/* Show original price if there are discounts */}
+        {totalPrice !== totalDiscountedPrice && (
+          <View style={styles.totalRow}>
+            <Text style={styles.totalLabel}>Original Total:</Text>
+            <Text style={styles.originalPrice}>
+              ${truncateToDecimals(totalPrice)}
+            </Text>
+          </View>
+        )}
+
         <View style={styles.totalRow}>
           <Text style={styles.totalLabel}>Total Price:</Text>
           <Text style={styles.totalPrice}>
@@ -222,8 +233,7 @@ const styles = StyleSheet.create({
     color: colors.success,
   },
   originalPrice: {
-    fontSize: 12,
-    fontWeight: "500",
+    fontSize: 16,
     color: colors.textSecondary,
     textDecorationLine: "line-through",
   },
