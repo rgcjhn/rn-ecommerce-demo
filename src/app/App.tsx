@@ -3,14 +3,17 @@ import { NavigationContainer } from "@react-navigation/native";
 import { Provider } from "react-redux";
 
 import RootStack from "./navigation/RootStack";
-import { store } from "@/store/store";
+import { persistor, store } from "@/store/store";
+import { PersistGate } from "redux-persist/integration/react";
 
 export default function App() {
   return (
     <Provider store={store}>
-      <NavigationContainer>
-        <RootStack />
-      </NavigationContainer>
+      <PersistGate loading={null} persistor={persistor}>
+        <NavigationContainer>
+          <RootStack />
+        </NavigationContainer>
+      </PersistGate>
     </Provider>
   );
 }
