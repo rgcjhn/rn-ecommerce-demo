@@ -6,6 +6,7 @@ import {
   FlatList,
   TouchableOpacity,
   Alert,
+  Image,
 } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
@@ -36,7 +37,15 @@ const CartScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   const renderCartItem = ({ item }: { item: CartItem }) => (
-    <View style={styles.cartItem}>
+    <TouchableOpacity
+      style={styles.cartItem}
+      onPress={() => navigation.navigate("ProductDetails", { product: item })}
+    >
+      <Image
+        source={{ uri: item.thumbnail }}
+        style={styles.thumbnail}
+        resizeMode="cover"
+      />
       <View style={styles.itemInfo}>
         <Text style={styles.itemTitle} numberOfLines={2}>
           {item.title}
@@ -74,13 +83,16 @@ const CartScreen: React.FC<Props> = ({ navigation }) => {
 
         {/* Remove button */}
         <TouchableOpacity
-          onPress={() => dispatch(removeFromCart(item.id))}
+          onPress={(e) => {
+            e.stopPropagation();
+            dispatch(removeFromCart(item.id));
+          }}
           style={styles.removeButton}
         >
           <Ionicons name="trash-outline" size={20} color={colors.error} />
         </TouchableOpacity>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   if (items.length === 0) {
@@ -148,10 +160,9 @@ const styles = StyleSheet.create({
   cartItem: {
     backgroundColor: colors.white,
     borderRadius: 12,
-    padding: 16,
+    padding: 12,
     marginBottom: 12,
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
     shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 1 },
@@ -159,27 +170,32 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 2,
   },
+  thumbnail: {
+    width: 60,
+    height: 60,
+    borderRadius: 8,
+    marginRight: 12,
+    backgroundColor: colors.gray100,
+  },
   itemInfo: {
     flex: 2,
-    marginRight: 12,
+    marginRight: 8,
   },
   itemTitle: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "500",
     color: colors.textPrimary,
     marginBottom: 4,
   },
   itemPrice: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "600",
     color: colors.success,
   },
   itemActions: {
-    flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "flex-end",
-    gap: 12,
+    gap: 8,
   },
   quantityContainer: {
     flexDirection: "row",
@@ -189,26 +205,26 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   quantityButton: {
-    width: 36,
-    height: 36,
+    width: 32,
+    height: 32,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: colors.white,
   },
   quantityButtonText: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "600",
     color: colors.primary,
   },
   quantity: {
-    minWidth: 32,
+    minWidth: 28,
     textAlign: "center",
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "500",
     color: colors.textPrimary,
   },
   removeButton: {
-    padding: 8,
+    padding: 6,
   },
   footer: {
     backgroundColor: colors.white,

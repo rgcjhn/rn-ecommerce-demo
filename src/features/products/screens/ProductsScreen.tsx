@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   StyleSheet,
+  Image,
 } from "react-native";
 import { RootStackParamList } from "@/app/navigation/types";
 import { addToCart } from "@/features/cart/store/cartSlice";
@@ -47,16 +48,27 @@ const ProductsScreen: React.FC<Props> = ({ navigation }) => {
     <TouchableOpacity
       style={styles.card}
       onPress={() => navigation.navigate("ProductDetails", { product: item })}
+      activeOpacity={0.7}
     >
+      <Image
+        source={{ uri: item.thumbnail }}
+        style={styles.thumbnail}
+        resizeMode="cover"
+      />
       <View style={styles.cardContent}>
-        <View>
-          <Text style={styles.title}>{item.title}</Text>
+        <View style={styles.cardInfo}>
+          <Text style={styles.title} numberOfLines={2}>
+            {item.title}
+          </Text>
           <Text style={styles.price}>${item.price}</Text>
         </View>
 
         <TouchableOpacity
           style={styles.addButton}
-          onPress={() => dispatch(addToCart(item))}
+          onPress={(e) => {
+            e.stopPropagation();
+            dispatch(addToCart(item));
+          }}
         >
           <Text style={styles.buttonText}>+ Cart</Text>
         </TouchableOpacity>
@@ -91,6 +103,7 @@ const ProductsScreen: React.FC<Props> = ({ navigation }) => {
         isFetching ? <ActivityIndicator color={colors.primary} /> : null
       }
       contentContainerStyle={styles.list}
+      showsVerticalScrollIndicator={false}
     />
   );
 };
@@ -107,29 +120,41 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: colors.surface,
-    padding: 12,
-    marginBottom: 8,
+    marginBottom: 12,
     borderRadius: 8,
-    shadowColor: colors.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.11,
+    shadowRadius: 1.11,
     elevation: 2,
+  },
+  thumbnail: {
+    width: "100%",
+    height: 150,
+    backgroundColor: colors.gray100,
   },
   cardContent: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    padding: 12,
+  },
+  cardInfo: {
+    flex: 1,
+    marginRight: 12,
   },
   title: {
     fontSize: 14,
     fontWeight: "500",
     color: colors.textPrimary,
+    marginBottom: 4,
   },
   price: {
     fontSize: 12,
     color: colors.success,
-    marginTop: 4,
     fontWeight: "600",
   },
   addButton: {
